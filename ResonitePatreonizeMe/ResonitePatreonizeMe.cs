@@ -6,6 +6,7 @@ using ResoniteModLoader;
 using Elements.Core;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 [assembly: ComVisible(false)]
 [assembly: AssemblyTitle(ResonitePatreonizeMe.BuildInfo.Name)]
@@ -31,11 +32,30 @@ namespace ResonitePatreonizeMe
         public override string Version => BuildInfo.Version;
         public override string Link => BuildInfo.Link;
 
-        [AutoRegisterConfigKey]
-        public static readonly ModConfigurationKey<bool> NEW_LOGO = new("newPatreonLogo", "New Patreon Logo: Use the bean logo instead of the classic logo.", () => false);
+        public enum SupporterBadge
+        {
+            OldPatreonLogo,
+            NewPatreonLogo,
+            ResoniteSupporter
+        }
+
+        private static readonly Dictionary<SupporterBadge, Uri> SupporterBadgeUri = new()
+        {
+            { SupporterBadge.OldPatreonLogo, new("resdb:///2f6fbe2c14f58f5d3d37607b64319b5712242a05db8f35e773c0bacf8c8e9bac") },
+            { SupporterBadge.NewPatreonLogo, new("resdb:///f43ee24a2d141debb36fe2477b7a28f0c39c2c42b17962830709e7ef3b0304ec") },
+            { SupporterBadge.ResoniteSupporter, new("resdb:///ac586a5995e02cd4fd49091afd7d437715a53749127b1145fbded5ccdc850f2a") }
+        };
+
+        private static Uri GetSupporterBadge(SupporterBadge badge)
+        {
+            return SupporterBadgeUri[badge];
+        }
 
         [AutoRegisterConfigKey]
-        public static readonly ModConfigurationKey<colorX> LOGO_COLOR = new("logoColor", "Tint Color: Customize the tint color of the logo.", () => new colorX(1f, 0.25882352941f, 0.30196078431f));
+        public static readonly ModConfigurationKey<SupporterBadge> BADGE_CHOICE = new("supporterBadge", "Supporter Badge: Select which supporter badge you'd like to use.", () => SupporterBadge.OldPatreonLogo);
+
+        [AutoRegisterConfigKey]
+        public static readonly ModConfigurationKey<colorX> LOGO_COLOR = new("logoColor", "Tint Color: Customize the tint color of the badge.", () => new colorX(1f, 0.25882352941f, 0.30196078431f));
 
         [AutoRegisterConfigKey]
         public static readonly ModConfigurationKey<Uri> CUSTOM_IMAGE_URI = new("customImageUri", "Custom Image: resdb/http/https uri to a custom image. (128x128 resolution).", () => null);
@@ -62,18 +82,12 @@ namespace ResonitePatreonizeMe
 
         public class ResonitePatreonizeMePatches
         {
-            public static readonly Uri OldPatreonLogo = new("resdb:///2f6fbe2c14f58f5d3d37607b64319b5712242a05db8f35e773c0bacf8c8e9bac");
-            public static readonly Uri NewPatreonLogo = new("resdb:///f43ee24a2d141debb36fe2477b7a28f0c39c2c42b17962830709e7ef3b0304ec");
             private static void AddPatreonBadge(Slot SupporterSlot)
             {
-                Uri logoUri;
+                Uri logoUri = Config.GetValue(CUSTOM_IMAGE_URI);
 
-                var customUri = Config.GetValue(CUSTOM_IMAGE_URI);
-
-                if (customUri != null && (customUri.Scheme == "resdb" || customUri.Scheme == "http" || customUri.Scheme == "https"))
-                    logoUri = customUri;
-                else
-                    logoUri = Config.GetValue(NEW_LOGO) ? NewPatreonLogo : OldPatreonLogo;
+                if (!(logoUri != null && (logoUri.Scheme == "resdb" || logoUri.Scheme == "http" || logoUri.Scheme == "https")))
+                    logoUri = GetSupporterBadge(Config.GetValue(BADGE_CHOICE));
 
                 SupporterSlot.StartTask(async () =>
                 {
