@@ -20,7 +20,7 @@ namespace ResonitePatreonizeMe
     {
         public const string Name = "Re-Patreonize Me";
         public const string Author = "Rucio";
-        public const string Version = "0.0.2";
+        public const string Version = "0.0.3";
         public const string Link = "https://github.com/bontebok/ResonitePatreonizeMe";
         public const string GUID = $"com.{Author}.{Name}";
     }
@@ -129,7 +129,7 @@ namespace ResonitePatreonizeMe
                     if (SupporterBadge == null)
                         child.ChildAdded += OnSupporterMeshAdded;
                     else
-                        OnSupporterMeshAdded(slot, SupporterBadge);
+                        OnSupporterMeshAdded(child, SupporterBadge);
 
                     AddPatreonBadge(child);
                     child.Name = "Patreon Supporter";
@@ -138,18 +138,15 @@ namespace ResonitePatreonizeMe
 
             private static void OnBadgesAdded(Slot slot, Slot child)
             {
-                if ((child.Name == "Badge Templates" && child.Parent == child.LocalUserRoot.Slot) || (child.Name == "Badges" && child.Parent.Name == "Icon Badges"))
+                var SupporterSlot = child.FindChild("Supporter");
+
+                if (SupporterSlot == null)
                 {
-                    var SupporterSlot = child.FindChild("Supporter");
-
-                    if (SupporterSlot == null)
-                    {
-                        child.ChildAdded += OnSupporterBadgeAdded;
-                        return;
-                    }
-
-                    OnSupporterBadgeAdded(slot, SupporterSlot);
+                    child.ChildAdded += OnSupporterBadgeAdded;
+                    return;
                 }
+
+                OnSupporterBadgeAdded(null, SupporterSlot);
             }
 
             [HarmonyPatch(typeof(AvatarBadgeManager))]
@@ -157,7 +154,7 @@ namespace ResonitePatreonizeMe
             {
                 [HarmonyPostfix]
                 [HarmonyPatch("OnAwake")]
-                public static void AvatarBadgeManagerOnAwakePostfix(AvatarBadgeManager __instance)
+                public static void AvatarBadgeManagerOnAwakePostfix(AvatarBadgeManager __instance, SyncRef<Slot> ____badgesRoot)
                 {
                     __instance.Slot.RunInUpdates(60, () =>
                     {
@@ -167,16 +164,14 @@ namespace ResonitePatreonizeMe
                         if (!__instance.IsUnderLocalUser) // Should only apply to local user
                             return;
 
-                        var Badge = __instance.Slot.FindChild("Badges"); // Likely empty as this is too early
+                        var BadgesRoot = ____badgesRoot.Target;
 
-                        if (Badge == null)
+                        if (BadgesRoot == null)
                         {
-                            // Badge Template not yet created - add slot added event
-                            __instance.Slot.ChildAdded += OnBadgesAdded;
                             return;
                         }
 
-                        OnBadgesAdded(__instance.Slot, Badge);
+                        OnBadgesAdded(__instance.Slot, BadgesRoot);
                     });
                 }
             }
