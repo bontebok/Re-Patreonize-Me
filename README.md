@@ -7,4 +7,5 @@ If a custom image is used, I recommend using an image with a resolution of 128x1
 <3 Enjoy!
 
 Note: Other users will need to allow custom name plates in order to see your custom supporter badge.
+
 Issues: The order of where the Patreon logo will appear in you badges will vary due to the loading process of the new supporter badge being async. I may patch this in a future update, or wait until Resonite provides a fix.
