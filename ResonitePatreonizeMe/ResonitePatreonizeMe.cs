@@ -38,7 +38,7 @@ namespace ResonitePatreonizeMe
         public static readonly ModConfigurationKey<colorX> LOGO_COLOR = new("logoColor", "Tint Color: Customize the tint color of the logo.", () => new colorX(1f, 0.25882352941f, 0.30196078431f));
 
         [AutoRegisterConfigKey]
-        public static readonly ModConfigurationKey<Uri> CUSTOM_IMAGE_URI = new("customImageUri", "Custom Image: A resdb uri for a custom image. (128x128 max resolution).", () => null);
+        public static readonly ModConfigurationKey<Uri> CUSTOM_IMAGE_URI = new("customImageUri", "Custom Image: resdb/http/https uri to a custom image. (128x128 resolution).", () => null);
 
         [AutoRegisterConfigKey]
         public static readonly ModConfigurationKey<bool> DISABLEMOD = new("disableMod", "Disable Mod: Do not change supporter badge.", () => false);
