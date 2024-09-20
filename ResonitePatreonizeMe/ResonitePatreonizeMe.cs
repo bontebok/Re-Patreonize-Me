@@ -35,7 +35,10 @@ namespace ResonitePatreonizeMe
         public static readonly ModConfigurationKey<bool> NEW_LOGO = new("newPatreonLogo", "New Patreon Logo: Use the bean logo instead of the classic logo.", () => false);
 
         [AutoRegisterConfigKey]
-        public static readonly ModConfigurationKey<colorX> LOGO_COLOR = new("logoColor", "Logo Color: Customize the color of the Patreon logo.", () => new colorX(1f, 0.25882352941f, 0.30196078431f));
+        public static readonly ModConfigurationKey<colorX> LOGO_COLOR = new("logoColor", "Tint Color: Customize the tint color of the logo.", () => new colorX(1f, 0.25882352941f, 0.30196078431f));
+
+        [AutoRegisterConfigKey]
+        public static readonly ModConfigurationKey<Uri> CUSTOM_IMAGE_URI = new("customImageUri", "Custom Image: A resdb uri for a custom image. (128x128 max resolution).", () => null);
 
         [AutoRegisterConfigKey]
         public static readonly ModConfigurationKey<bool> DISABLEMOD = new("disableMod", "Disable Mod: Do not change supporter badge.", () => false);
@@ -63,7 +66,15 @@ namespace ResonitePatreonizeMe
             public static readonly Uri NewPatreonLogo = new("resdb:///f43ee24a2d141debb36fe2477b7a28f0c39c2c42b17962830709e7ef3b0304ec");
             private static void AddPatreonBadge(Slot SupporterSlot)
             {
-                var logoUri = Config.GetValue(NEW_LOGO) ? NewPatreonLogo : OldPatreonLogo;
+                Uri logoUri;
+
+                var customUri = Config.GetValue(CUSTOM_IMAGE_URI);
+
+                if (customUri != null && (customUri.Scheme == "resdb" || customUri.Scheme == "http" || customUri.Scheme == "https"))
+                    logoUri = customUri;
+                else
+                    logoUri = Config.GetValue(NEW_LOGO) ? NewPatreonLogo : OldPatreonLogo;
+
                 SupporterSlot.StartTask(async () =>
                 {
                     await new NextUpdate();
@@ -130,27 +141,29 @@ namespace ResonitePatreonizeMe
             [HarmonyPatch(typeof(AvatarBadgeManager))]
             public class AvatarBadgeManagerPatch
             {
-
                 [HarmonyPostfix]
                 [HarmonyPatch("OnAwake")]
                 public static void AvatarBadgeManagerOnAwakePostfix(AvatarBadgeManager __instance)
                 {
-                    if (Config.GetValue(DISABLEMOD))
-                        return;
-
-                    if (!__instance.IsUnderLocalUser) // Should only apply to local user
-                        return;
-
-                    var Badge = __instance.Slot.FindChild("Badges"); // Likely empty as this is too early
-
-                    if (Badge == null)
+                    __instance.Slot.RunInUpdates(60, () =>
                     {
-                        // Badge Template not yet created - add slot added event
-                        __instance.Slot.ChildAdded += OnBadgesAdded;
-                        return;
-                    }
+                        if (Config.GetValue(DISABLEMOD))
+                            return;
 
-                    OnBadgesAdded(__instance.Slot, Badge);
+                        if (!__instance.IsUnderLocalUser) // Should only apply to local user
+                            return;
+
+                        var Badge = __instance.Slot.FindChild("Badges"); // Likely empty as this is too early
+
+                        if (Badge == null)
+                        {
+                            // Badge Template not yet created - add slot added event
+                            __instance.Slot.ChildAdded += OnBadgesAdded;
+                            return;
+                        }
+
+                        OnBadgesAdded(__instance.Slot, Badge);
+                    });
                 }
             }
         }
