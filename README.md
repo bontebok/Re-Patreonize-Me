@@ -6,6 +6,8 @@ Alternatively, you can choose to keep the Resonite Supporter badge as-is, but us
 
 If a custom image is used, I recommend using an image with a resolution of 128x128 to match all other badges. The Custom Image field supports resdb, http, or https Uri's.
 
+![image](https://github.com/user-attachments/assets/13a03330-76d6-44f3-af2f-ae8618cc08ec)
+
 <3 Enjoy!
 
 Note: Other users will need to allow custom name plates in order to see your custom supporter badge.
