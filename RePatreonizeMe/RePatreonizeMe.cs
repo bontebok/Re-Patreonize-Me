@@ -4,33 +4,16 @@ using FrooxEngine.CommonAvatar;
 using HarmonyLib;
 using ResoniteModLoader;
 using Elements.Core;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
-[assembly: ComVisible(false)]
-[assembly: AssemblyTitle(ResonitePatreonizeMe.BuildInfo.Name)]
-[assembly: AssemblyProduct(ResonitePatreonizeMe.BuildInfo.GUID)]
-[assembly: AssemblyVersion(ResonitePatreonizeMe.BuildInfo.Version)]
-[assembly: AssemblyCompany("com.Rucio")]
-
-namespace ResonitePatreonizeMe
+namespace RePatreonizeMe
 {
-    public static class BuildInfo
+    public class RePatreonizeMe : ResoniteMod
     {
-        public const string Name = "Re-Patreonize Me";
-        public const string Author = "Rucio";
-        public const string Version = "0.0.3";
-        public const string Link = "https://github.com/bontebok/ResonitePatreonizeMe";
-        public const string GUID = $"com.{Author}.{Name}";
-    }
-
-    public class ResonitePatreonizeMe : ResoniteMod
-    {
-        public override string Name => BuildInfo.Name;
-        public override string Author => BuildInfo.Author;
-        public override string Version => BuildInfo.Version;
-        public override string Link => BuildInfo.Link;
+        public override string Name => "Re-Patreonize Me";
+        public override string Author => "Rucio";
+        public override string Version => "0.0.4";
+        public override string Link => "https://github.com/bontebok/Re-Patreonize-Me";
 
         public enum SupporterBadge
         {
@@ -71,7 +54,7 @@ namespace ResonitePatreonizeMe
             try
             {
                 Config = GetConfiguration();
-                Harmony harmony = new(BuildInfo.GUID);
+                Harmony harmony = new("com.Rucio.Re-Patreonize Me");
                 harmony.PatchAll();
             }
             catch (Exception ex)
@@ -80,7 +63,7 @@ namespace ResonitePatreonizeMe
             }
         }
 
-        public class ResonitePatreonizeMePatches
+        public class RePatreonizeMePatches
         {
             private static void AddPatreonBadge(Slot SupporterSlot)
             {

@@ -8,7 +8,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <RootNamespace>ResonitePatreonizeMe</RootNamespace>
+    <RootNamespace>RePatreonizeMe</RootNamespace>
     <LangVersion>10.0</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   	<ResonitePath>$(MSBuildThisFileDirectory)Resonite</ResonitePath>
