@@ -5,6 +5,7 @@ using HarmonyLib;
 using ResoniteModLoader;
 using Elements.Core;
 using System.Collections.Generic;
+using Renderite.Shared;
 
 namespace RePatreonizeMe
 {
